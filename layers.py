@@ -134,9 +134,13 @@ def _geometry_from_geojson(geometry):
         if geom is not None and not geom.isNull():
             return geom
     except AttributeError:
+        # Older PyQGIS releases may not expose this conversion method.
         pass
-    except Exception:
-        pass
+    except Exception as exc:
+        QgsMessageLog.logMessage(
+            "GeoJSON conversion by QgsJsonUtils failed: {}".format(exc),
+            "OnGeo", MESSAGE_WARNING,
+        )
 
     if geometry_dict is None:
         try:
@@ -158,15 +162,21 @@ def _geometry_from_geojson(geometry):
             geom = features[0].geometry()
             if geom is not None and not geom.isNull():
                 return geom
-    except Exception:
-        pass
+    except Exception as exc:
+        QgsMessageLog.logMessage(
+            "GeoJSON feature conversion failed: {}".format(exc),
+            "OnGeo", MESSAGE_WARNING,
+        )
 
     try:
         geom = _geometry_from_coordinates(geometry_dict)
         if geom is not None and not geom.isNull():
             return geom
-    except Exception:
-        pass
+    except Exception as exc:
+        QgsMessageLog.logMessage(
+            "Fallback parcel geometry conversion failed: {}".format(exc),
+            "OnGeo", MESSAGE_WARNING,
+        )
 
     return None
 

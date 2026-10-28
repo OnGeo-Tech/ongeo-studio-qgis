@@ -1,5 +1,6 @@
 """OnGeo US Parcel Explorer QGIS plugin."""
 
+import logging
 import os
 import re
 import time
@@ -24,6 +25,7 @@ from qgis.core import (
     QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
+    QgsCsException,
     QgsDataProvider,
     QgsLabelingEngineSettings,
     QgsMessageLog,
@@ -503,8 +505,8 @@ class OnGeoUSParcelSearchPlugin(object):
                 return
             window.raise_()
             window.activateWindow()
-        except Exception:
-            pass
+        except Exception as exc:
+            self._log_warning("Could not activate QGIS window: {}".format(exc))
 
     @staticmethod
     def _auth_token_task(task, auth_client, authorization_code=None):
@@ -518,11 +520,11 @@ class OnGeoUSParcelSearchPlugin(object):
                 token_data = auth_client.exchange_code_for_tokens(authorization_code)
             return {"token_data": token_data, "error": None}
         except AuthRejectedError as exc:
-            return {"token_data": None, "error": str(exc), "rejected": True}
+            return {"error": str(exc), "rejected": True}
         except AuthTransientError as exc:
-            return {"token_data": None, "error": str(exc), "transient": True}
+            return {"error": str(exc), "transient": True}
         except Exception as exc:
-            return {"token_data": None, "error": str(exc), "transient": True}
+            return {"error": str(exc), "transient": True}
 
     def _auth_exchange_finished(self, exception, result, generation):
         """Complete login after the token endpoint responds."""
@@ -934,7 +936,16 @@ class OnGeoUSParcelSearchPlugin(object):
                 WEB_MERCATOR_WORLD_WIDTH / (WEB_MERCATOR_TILE_SIZE * resolution)
             )
             return zoom >= PARCEL_TILE_SOURCE_MIN_ZOOM
-        except (AttributeError, RuntimeError, TypeError, ValueError, ZeroDivisionError):
+        except (
+            QgsCsException,
+            AttributeError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            ZeroDivisionError,
+        ):
+            # Some project CRS/extents cannot be reprojected to EPSG:3857.
+            # Fall back to the QGIS map scale instead of interrupting map signals.
             return float(self.iface.mapCanvas().scale()) <= PARCEL_TILE_MIN_SCALE
 
     def _sync_parcel_tile_scale_message(self, *args):
@@ -1276,30 +1287,30 @@ class OnGeoUSParcelSearchPlugin(object):
             if timer is not None:
                 try:
                     timer.stop()
-                except Exception:
-                    pass
+                except Exception as exc:
+                    self._log_warning("Could not stop QGIS timer: {}".format(exc))
         self._logout_user(show_message=False)
         self._remove_network_request_preprocessor()
         if self.menu_action is not None:
             try:
                 self.iface.removePluginMenu("OnGeo", self.menu_action)
-            except Exception:
-                pass
+            except Exception as exc:
+                self._log_warning("Could not remove plugin menu: {}".format(exc))
             self.menu_action = None
         if self.results_popup is not None:
             try:
                 self.results_popup.hide()
                 self.results_popup.deleteLater()
-            except Exception:
-                pass
+            except Exception as exc:
+                self._log_warning("Could not close results popup: {}".format(exc))
             self.results_popup = None
         self._remove_own_toolbar_controls()
         if self.toolbar is not None and self._created_toolbar and not self.toolbar.actions():
             try:
                 self.iface.mainWindow().removeToolBar(self.toolbar)
                 self.toolbar.deleteLater()
-            except Exception:
-                pass
+            except Exception as exc:
+                self._log_warning("Could not remove OnGeo toolbar: {}".format(exc))
         self.toolbar = None
 
     def _get_or_create_toolbar(self):
@@ -1380,7 +1391,8 @@ class OnGeoUSParcelSearchPlugin(object):
         try:
             QgsMessageLog.logMessage(str(message), "OnGeo", MESSAGE_WARNING)
         except Exception:
-            pass
+            # Log outside QGIS when its logger is no longer available.
+            logging.getLogger("OnGeo").warning("%s", message)
 
     def _report_task_error(self, exception, result, fallback_message):
         """Log task errors and show user-facing API errors."""
@@ -1427,8 +1439,8 @@ class OnGeoUSParcelSearchPlugin(object):
                         b"Authorization",
                         "Bearer {}".format(access_token).encode("utf-8"),
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                self._log_warning("Could not preprocess OnGeo request: {}".format(exc))
             return ""
 
         self.network_request_preprocessor = preprocess
@@ -1442,8 +1454,8 @@ class OnGeoUSParcelSearchPlugin(object):
         if remover is not None:
             try:
                 remover(self.network_request_preprocessor_id)
-            except Exception:
-                pass
+            except Exception as exc:
+                self._log_warning("Could not remove request preprocessor: {}".format(exc))
         self.network_request_preprocessor_id = None
         self.network_request_preprocessor = None
 
