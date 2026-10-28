@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 -960 960 960" fill="none">
+  <title>Add parcel layer - QGIS / Material</title>
+  <g transform="translate(0 -960) scale(40)" stroke="#BDBDBD" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.2 10.1 11 6.3 18.6 10.1 11 14 3.2 10.1Z"/>
+    <path d="M3.2 14.1 11 18 18.6 14.1"/>
+    <path d="M3.2 18.1 11 22 18.6 18.1"/>
+    <path d="M19.5 2.1v5.2M16.9 4.7h5.2" stroke-width="2"/>
+  </g>
+</svg>

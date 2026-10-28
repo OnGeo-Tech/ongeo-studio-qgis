@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="28" viewBox="0 0 32 28" fill="none">
+  <title>Signed in user</title>
+  <circle cx="12.5" cy="7" r="5.2" fill="#30343B"/>
+  <path d="M1.6 25v-2.4c0-5.2 4.6-9.1 10.9-9.1s10.9 3.9 10.9 9.1V25H1.6Z" fill="#30343B"/>
+  <circle cx="24" cy="19.5" r="7.4" fill="#36B352" stroke="white" stroke-width="1.8"/>
+  <path d="m20.5 19.4 2.3 2.3 4.5-4.8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

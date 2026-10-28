@@ -1,0 +1,36 @@
+[general]
+name=OnGeo US Parcel Explorer
+name[pl]=OnGeo US Parcel Explorer
+version=1.0.0
+qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+author=OnGeo
+email=qgis@ongeo.com
+homepage=https://github.com/OnGeo-Tech/ongeo-studio-qgis
+repository=https://github.com/OnGeo-Tech/ongeo-studio-qgis
+tracker=https://github.com/OnGeo-Tech/ongeo-studio-qgis/issues
+icon=icons/plugin_icon.svg
+category=Web
+tags=ongeo,usa,parcels,address search,property,land records
+description=Search, identify and explore U.S. parcel data with OnGeo services in QGIS.
+about=Explore U.S. parcel data and OnGeo services directly in QGIS.
+
+    Search by address or parcel identifier and add selected parcel boundaries to your map.
+
+    Display nationwide parcel boundaries at supported map scales and identify parcels on the map.
+
+    Review available parcel details and continue to the full property report in OnGeo.
+
+    Access requires an OnGeo account. Service availability depends on account access.
+
+    Learn more at https://ongeo.us/
+changelog=1.0.0
+    - Synchronize the nationwide parcel button with manual layer visibility changes.
+    - Log parcel styling and labeling failures in the QGIS message log.
+    - Read Retry-After response headers correctly when an API rate limit occurs.
+    - Search U.S. parcels by address or parcel identifier.
+    - Add selected parcel boundaries, display nationwide parcels, and identify parcels on the map.
+experimental=False
+deprecated=False
+plugin_type=python
+license=GPL-3.0-or-later
